@@ -75,11 +75,11 @@
 		{
 			"name": "Обновить пользователя",
 			"request": {
-				"method": "PATCH",
+				"method": "PUT",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"name\": \"Валера\",\n    \"email\": \"valera@arch.homework\",\n\t\"password\": \"654321\"\n}",
+					"raw": "{\n\t\"login\": \"Валера\",\n    \"email\": \"valera@arch.homework\",\n\t\"password\": \"654321\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -152,12 +152,12 @@
 	],
 	"variable": [
 		{
-			"id": "b678032e-f4f6-4bc5-b3d2-13c21d14a450",
+			"id": "4277ad4d-a8ad-4381-8772-1b67dc2c7e0d",
 			"key": "userId",
 			"value": "0"
 		},
 		{
-			"id": "a5371010-1f17-4d7d-b90e-6d9a4c4cd254",
+			"id": "f5e1ca88-1583-4ff4-b554-b0dbb8a729a5",
 			"key": "baseUrl",
 			"value": "arch.homework"
 		}
