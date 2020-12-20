@@ -9,6 +9,7 @@ spec:
     - port: 8000
       protocol: TCP
       targetPort: 8000
+      name: web
   selector:
     {{- include "app.selectorLabels" . | nindent 6 }}
   type: NodePort

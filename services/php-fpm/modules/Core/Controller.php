@@ -9,11 +9,13 @@ class Controller
 {
     protected $entityManager;
     protected $validator;
+    protected $prometheus;
 
-    public function __construct($entityManager, $validator)
+    public function __construct($entityManager, $validator, $prometheus)
     {
         $this->entityManager = $entityManager;
         $this->validator = $validator;
+        $this->prometheus = $prometheus;
     }
 
     public function sendErrors(ConstraintViolationList $errors) : JsonResponse

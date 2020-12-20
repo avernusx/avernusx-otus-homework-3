@@ -12,16 +12,18 @@ spec:
   template:
     metadata:
       labels:
-        {{- include "app.selectorLabels" . | nindent 10 }}
+        {{- include "app.selectorLabels" . | nindent 8 }}
     spec:
       volumes:
         - name: nginx-config-volume
           configMap:
             name: nginx-config    
       containers:
-        - image: avernusx/otus-homework-2-php-fpm:latest
+        - image: avernusx/otus-homework-3-php-fpm:latest
           name: php-fpm
           env:
+            - name: REDIS_HOST
+              value: 127.0.0.1
             - name: DB_USER
               value: {{ .Values.postgresql.postgresqlUsername }}
             - name: DB_PASS
@@ -32,6 +34,11 @@ spec:
               value: {{ include "postgresql.fullname" . }}
             - name: DB_PORT
               value: {{ .Values.postgresql.service.port | quote }}
+        - image: bitnami/redis:6.0.9
+          name: redis
+          env: 
+            - name: REDIS_PASSWORD
+              value: dev      
         - image: openresty/openresty:xenial
           name: nginx
           ports:

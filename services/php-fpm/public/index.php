@@ -14,7 +14,20 @@ use \Doctrine\Common\Annotations\AnnotationReader;
 
 use \Modules\Core\JsonRequest;
 
+$startTime = microtime(true);
+
 $loader = require '../vendor/autoload.php';
+
+\Prometheus\Storage\Redis::setDefaultOptions(
+    [
+        'host' => $_ENV['REDIS_HOST'],
+        'port' => 6379,
+        'password' => 'dev',
+    ]
+);
+
+$prometheus = \Prometheus\CollectorRegistry::getDefault();
+$histogram = $prometheus->getOrRegisterHistogram('', 'avernusx_latency', '', ['type']);
 
 AnnotationRegistry::registerLoader([$loader, 'loadClass']);
 AnnotationReader::addGlobalIgnoredName('OA\Schema');
@@ -29,7 +42,8 @@ $subroutes = [
     \Modules\Messaging\Routes::class,
     \Modules\Profile\Routes::class,
     \Modules\Users\Routes::class,
-    \Modules\Swagger\Routes::class
+    \Modules\Swagger\Routes::class,
+    \Modules\Index\Routes::class
 ];
 
 $request = JsonRequest::createFromGlobals();
@@ -59,8 +73,24 @@ $entityManager = EntityManager::create(
 );
 
 $validator = Validation::createValidatorBuilder()->enableAnnotationMapping()->getValidator();
-
-$controller = new $currentRoute['controller']($entityManager, $validator);
+$controller = new $currentRoute['controller']($entityManager, $validator, $prometheus);
 $method = $currentRoute['method'];
-$response = $controller->$method($request, $currentRoute);
+
+try {
+    $response = $controller->$method($request, $currentRoute);
+} catch (Exception $exception) {
+    $prometheus->getOrRegisterCounter('', 'avernusx_error500', '')->inc();
+    $prometheus->getOrRegisterCounter('', 'requests', '')->inc();
+    http_response_code(500);
+
+    $endTime = microtime(true);
+    $histogram->observe($endTime - $startTime, ['blue']);
+
+    throw $exception;
+}
+
 $response->send();
+
+$prometheus->getOrRegisterCounter('', 'avernusx_requests', '')->inc();
+$endTime = microtime(true);
+$histogram->observe($endTime - $startTime, ['blue']);

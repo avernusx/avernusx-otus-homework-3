@@ -6,6 +6,10 @@ services:
       - PGDATA=/var/lib/postgresql/site
       - POSTGRES_USER=dev
       - POSTGRES_PASSWORD=dev
+  redis:
+    image: bitnami/redis:6.0.9
+    environment: 
+      - REDIS_PASSWORD=dev
   php-fpm:
     image: bitnami/php-fpm
     volumes:
@@ -15,6 +19,7 @@ services:
       - ./services/php-fpm/php.ini:/opt/bitnami/php/etc/php.ini
       - ./services/php-fpm:/app
     environment:
+      - REDIS_HOST=redis
       - DB_NAME=dev
       - DB_USER=dev
       - DB_PASS=dev

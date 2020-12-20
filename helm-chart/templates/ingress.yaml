@@ -1,18 +1,22 @@
-apiVersion: networking.k8s.io/v1
+{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
 kind: Ingress
 metadata:
   name: entrypoint
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
-  - host: {{ .Values.ingress.host }}
-    http:
-      paths:
-        - path: /otusapp/vlaznev($|/)(.*)
-          pathType: Prefix
-          backend:
-            service:
-              name: {{ include "app.fullname" . }}
-              port:
-                number: 8000
+    - host: arch.homework
+      http:
+        paths:
+          - path: /otusapp/vlaznev($|/)(.*)
+            pathType: Prefix
+            backend:
+              serviceName: {{ include "app.fullname" . }}
+              servicePort: 8000
